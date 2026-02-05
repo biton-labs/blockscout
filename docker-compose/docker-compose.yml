@@ -85,10 +85,3 @@ services:
     ports:
       - "8080:8050"
 
-  user-ops-indexer:
-    depends_on:
-      - db
-      - backend
-    extends:
-      file: ./services/user-ops-indexer.yml
-      service: user-ops-indexer
