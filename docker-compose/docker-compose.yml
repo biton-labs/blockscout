@@ -33,28 +33,20 @@ services:
         RELEASE_VERSION: 9.0.2
     links:
       - db:database
+    ports:
+      - "8091:4000"
     environment:
-        ETHEREUM_JSONRPC_HTTP_URL: http://host.docker.internal:8545/
-        ETHEREUM_JSONRPC_TRACE_URL: http://host.docker.internal:8545/
-        ETHEREUM_JSONRPC_WS_URL: ws://host.docker.internal:8545/
-        CHAIN_ID: '1337'
-
-  nft_media_handler:
-    depends_on:
-      - backend
-    extends:
-      file: ./services/nft_media_handler.yml
-      service: nft_media_handler
-    build:
-      context: ..
-      dockerfile: ./docker/Dockerfile
-      args:
-        RELEASE_VERSION: 9.0.2
+        ETHEREUM_JSONRPC_HTTP_URL: http://10.68.131.229:8545
+        ETHEREUM_JSONRPC_TRACE_URL: http://10.68.131.229:8545
+        ETHEREUM_JSONRPC_WS_URL: ws://10.68.131.229:8546
+        CHAIN_ID: '178001'
 
   visualizer:
     extends:
       file: ./services/visualizer.yml
       service: visualizer
+    ports:
+      - "8081:8050"
 
   sig-provider:
     extends:
@@ -67,6 +59,8 @@ services:
     extends:
       file: ./services/frontend.yml
       service: frontend
+    ports:
+      - "8090:3000"
 
   stats-db-init:
     extends:
@@ -88,20 +82,5 @@ services:
     extends:
       file: ./services/stats.yml
       service: stats
-
-  user-ops-indexer:
-    depends_on:
-      - db
-      - backend
-    extends:
-      file: ./services/user-ops-indexer.yml
-      service: user-ops-indexer
-
-  proxy:
-    depends_on:
-      - backend
-      - frontend
-      - stats
-    extends:
-      file: ./services/nginx.yml
-      service: proxy
+    ports:
+      - "8080:8050"
