@@ -36,10 +36,10 @@ services:
     ports:
       - "8091:4000"
     environment:
-        ETHEREUM_JSONRPC_HTTP_URL: http://10.68.131.229:8545
-        ETHEREUM_JSONRPC_TRACE_URL: http://10.68.131.229:8545
-        ETHEREUM_JSONRPC_WS_URL: ws://10.68.131.229:8546
-        CHAIN_ID: '178001'
+        ETHEREUM_JSONRPC_HTTP_URL: http://10.68.131.15:8545
+        ETHEREUM_JSONRPC_TRACE_URL: http://10.68.131.15:8545
+        ETHEREUM_JSONRPC_WS_URL: ws://10.68.131.15:8546
+        CHAIN_ID: '322'
 
   visualizer:
     extends:
