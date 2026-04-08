@@ -155,7 +155,7 @@ defmodule BlockScoutWeb.API.V2.Helper do
     case Enum.find(address_names, &(&1.primary == true)) do
       nil ->
         # take last created address name, if there is no `primary` one.
-        %Address.Name{name: name} = Enum.max_by(address_names, & &1.id)
+        %Address.Name{name: name} = Enum.max_by(address_names, & &1.inserted_at)
         name
 
       %Address.Name{name: name} ->
@@ -221,7 +221,7 @@ defmodule BlockScoutWeb.API.V2.Helper do
 
   def get_transaction_stats do
     stats_scale = date_range(1)
-    transaction_stats = TransactionStats.by_date_range(stats_scale.earliest, stats_scale.latest)
+    transaction_stats = TransactionStats.by_date_range(stats_scale.earliest, stats_scale.latest, api?: true)
 
     # Need datapoint for legend if none currently available.
     if Enum.empty?(transaction_stats) do

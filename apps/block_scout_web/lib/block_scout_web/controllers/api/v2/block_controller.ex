@@ -27,7 +27,7 @@ defmodule BlockScoutWeb.API.V2.BlockController do
       internal_transaction_call_type_options: 1
     ]
 
-  import Explorer.MicroserviceInterfaces.BENS, only: [maybe_preload_ens: 1]
+  import Explorer.MicroserviceInterfaces.BENS, only: [maybe_preload_ens: 1, maybe_preload_ens_for_transactions: 1]
   import Explorer.MicroserviceInterfaces.Metadata, only: [maybe_preload_metadata: 1]
   import Explorer.Chain.Address.Reputation, only: [reputation_association: 0]
 
@@ -42,8 +42,8 @@ defmodule BlockScoutWeb.API.V2.BlockController do
   alias Explorer.Chain
   alias Explorer.Chain.Arbitrum.Reader.API.Settlement, as: ArbitrumSettlementReader
   alias Explorer.Chain.Beacon.Deposit
+  alias Explorer.Chain.{Block, InternalTransaction}
   alias Explorer.Chain.Cache.{BlockNumber, Counters.AverageBlockTime}
-  alias Explorer.Chain.InternalTransaction
   alias Explorer.Chain.Optimism.TransactionBatch, as: OptimismTransactionBatch
   alias Explorer.Chain.Scroll.Reader, as: ScrollReader
   alias Timex.Duration
@@ -113,13 +113,12 @@ defmodule BlockScoutWeb.API.V2.BlockController do
       |> Map.merge(@chain_type_transaction_necessity_by_association)
   ]
 
-  @internal_transaction_necessity_by_association [
-    necessity_by_association: %{
-      [created_contract_address: [:scam_badge, :names, :smart_contract, proxy_implementations_association()]] =>
-        :optional,
-      [from_address: [:scam_badge, :names, :smart_contract, proxy_implementations_association()]] => :optional,
-      [to_address: [:scam_badge, :names, :smart_contract, proxy_implementations_association()]] => :optional
-    }
+  @internal_transaction_address_preloads [
+    address_preloads: [
+      created_contract_address: [:scam_badge, :names, :smart_contract, proxy_implementations_association()],
+      from_address: [:scam_badge, :names, :smart_contract, proxy_implementations_association()],
+      to_address: [:scam_badge, :names, :smart_contract, proxy_implementations_association()]
+    ]
   ]
 
   @api_true [api?: true]
@@ -181,7 +180,7 @@ defmodule BlockScoutWeb.API.V2.BlockController do
         ok_response
 
       _ ->
-        {:lost_consensus, Chain.nonconsensus_block_by_number(number, @api_true)}
+        {:lost_consensus, Block.nonconsensus_block_by_number(number, @api_true)}
     end
   end
 
@@ -421,7 +420,7 @@ defmodule BlockScoutWeb.API.V2.BlockController do
       |> put_status(200)
       |> put_view(TransactionView)
       |> render(:transactions, %{
-        transactions: transactions |> maybe_preload_ens() |> maybe_preload_metadata(),
+        transactions: transactions |> maybe_preload_ens_for_transactions() |> maybe_preload_metadata(),
         next_page_params: next_page_params
       })
     end
@@ -464,7 +463,7 @@ defmodule BlockScoutWeb.API.V2.BlockController do
   def internal_transactions(conn, %{block_hash_or_number_param: block_hash_or_number} = params) do
     with {:ok, block} <- block_param_to_block(block_hash_or_number) do
       full_options =
-        @internal_transaction_necessity_by_association
+        @internal_transaction_address_preloads
         |> Keyword.merge(paging_options(params))
         |> Keyword.merge(@api_true)
         |> Keyword.merge(internal_transaction_type_options(params))

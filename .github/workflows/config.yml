@@ -4,26 +4,12 @@ on:
   push:
     branches:
       - master
-      - production-arbitrum
-      - production-core
-      - production-eth-sepolia
-      - production-filecoin
-      - production-fuse
-      - production-optimism
-      - production-immutable
-      - production-iota
-      - production-lukso
-      - production-rsk
-      - production-sokol
-      - production-xdai
-      - production-zkevm
-      - production-zksync
-      - staging-l2
     paths-ignore:
       - "CHANGELOG.md"
       - "**/README.md"
       - "docker/*"
       - "docker-compose/*"
+  workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened, labeled]
     branches:
@@ -58,7 +44,6 @@ jobs:
               "filecoin",
               "optimism",
               "optimism-celo",
-              "polygon_zkevm",
               "rsk",
               "scroll",
               "shibarium",
@@ -827,3 +812,4 @@ jobs:
           CHAIN_TYPE: ${{ matrix.chain-type != 'default' && matrix.chain-type || '' }}
           WETH_TOKEN_TRANSFERS_FILTERING_ENABLED: "true"
           BRIDGED_TOKENS_ENABLED: ${{ matrix.bridged-tokens }}
+          DISABLE_WEBAPP: "false"
