@@ -1,1 +1,1 @@
-docker compose --env-file version.env up -d
+docker compose up -d

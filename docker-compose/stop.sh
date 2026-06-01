@@ -1,1 +1,1 @@
-docker compose --env-file version.env down 
+docker compose down 
